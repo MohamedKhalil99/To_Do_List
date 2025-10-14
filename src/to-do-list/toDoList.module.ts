@@ -5,8 +5,8 @@ import { DatabaseModule } from 'src/database/database.module';
 import { notesProviders } from './providers/toDoList.provider';
 
 @Module({
-  imports:[DatabaseModule,ToDoListModule],
+  imports:[DatabaseModule],
   controllers: [ToDoListController],
-  providers: [...notesProviders,ToDoListService],
+  providers: [...notesProviders, ToDoListService],
 })
 export class ToDoListModule {}

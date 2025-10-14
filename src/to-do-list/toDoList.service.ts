@@ -1,46 +1,39 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateToDoListDto } from './dto/createToDoList.dto';
-import { notes } from './interfaces/toDoList.interface';
+import { Note } from './interfaces/toDoList.interface';
 import { Model } from 'mongoose';
 import { UpdateToDoListDto } from './dto/updateToDoList.dto';
 
 @Injectable()
 export class ToDoListService 
 {
-  constructor(@Inject('NOTES_MODEL')private notesModel: Model<notes>,){}
+  constructor(@Inject('NOTES_MODEL') private notesModel: Model<Note>) {}
   
-  async create(body: CreateToDoListDto) 
-  {
-    const note = await this.notesModel.create(body);
+  async create(createDto: CreateToDoListDto) {
+    const note = await this.notesModel.create(createDto);
     return note;
   }
   
-  async findAll():Promise<notes[]>
-  {
-    const notes= await this.notesModel.find().select('-_id');
-    if(!notes){throw new NotFoundException();}
+  async findAll(): Promise<Note[]> {
+    const notes = await this.notesModel.find();
     return notes;
   }
   
-  async findOne(id:string):Promise<notes> 
-  {
-    const note= await this.notesModel.findById(id);
-    if(!note){throw new NotFoundException();}
+  async findOne(id: string): Promise<Note> {
+    const note = await this.notesModel.findById(id);
+    if(!note){throw new NotFoundException('Note not found');}
     return note;
   }
 
-
-  async update(id: string, body: UpdateToDoListDto) 
-  {
-    const note =await this.notesModel.findByIdAndUpdate(id,body,{new:true}).select('-_id');
-    if(!note){throw new NotFoundException();}
-    return note;
+  async update(id: string, updateDto: UpdateToDoListDto) {
+    const note = await this.notesModel.findByIdAndUpdate(id, updateDto, {new:true});
+    if(!note){throw new NotFoundException('Note not found');} 
+    return { message: 'Note updated successfully', note };
   }
 
-  async remove(id:string):Promise<string>
-  {
-    const note=await this.notesModel.findByIdAndDelete(id);
-    if(!note){throw new NotFoundException();} 
-    return 'Note Deleted';
+  async remove(id: string): Promise<{ message: string }> {
+    const note = await this.notesModel.findByIdAndDelete(id);
+    if(!note){throw new NotFoundException('Note not found');} 
+    return { message: 'Note deleted successfully' };
   }
 }
