@@ -10,8 +10,13 @@ export class ToDoListService
   constructor(@Inject('NOTES_MODEL') private notesModel: Model<Note>) {}
   
   async create(createDto: CreateToDoListDto) {
+    // check if title already exists
+    const existingNote = await this.notesModel.findOne({ title: createDto.title });
+    if (existingNote) {
+      return { message: '⚠️ A note with this title already exists', success: false };
+    }
     const note = await this.notesModel.create(createDto);
-    return note;
+    return { success: true, data: note };
   }
   
   async findAll(): Promise<Note[]> {
